@@ -1,9 +1,10 @@
-import { useState } from "react"
 import Result from "../result/Result"
 import Status from "../status/Status"
+import useQuestion from "../../hooks/useQuestion"
 
 function Question() {
 
+    // Defining variable questioncontent and ans
     const questionContent = {
         1: ["1. How many 2+2?", 8, 4],
         2: ["2. x+y=19, if x=10 then y=?", 9, 8],
@@ -18,46 +19,51 @@ function Question() {
     }
     const ans = [4, 9, "Narendra Modi", "Square of edge", "9.8 m/s2", "3 hr", "Relative", "Cascading style sheet.", "Hyper text markup language", 15]
 
-    const [questionNo, setQuestionNo] = useState(1)
-    // We will count no of right and wrong question and stored in count array
-    const [count, setCount] = useState([0, 0])
+    // custom hooks
+    const { questionHooks, setQuestionHooks } = useQuestion()
 
+    // Selecting select tag of class name option
     let x = document.getElementsByClassName("options")
 
     function handleQuestionNo() {
-        console.log(ans[questionNo - 1]);
-        console.log(x[0].value);
-        if (x[0].value == ans[questionNo - 1]) {
-            console.log("its run");
-            setCount((s) => [s[0] + 1, s[1]])
+        // console.log(ans[questionHooks.questionNo - 1]);
+        // console.log(x[0].value);
+        if (x[0].value == ans[questionHooks.questionNo - 1]) {
+            // console.log("its run");
+            setQuestionHooks((s) => ({ ...s, count: [questionHooks.count[0] + 1, questionHooks.count[1]] }))
+            // console.log("count", questionHooks.count);
+            questionHooks.status = true
         }
         else {
-            setCount((s) => [s[0], s[1] + 1])
+            setQuestionHooks((s) => ({ ...s, count: [questionHooks.count[0], questionHooks.count[1] + 1] }))
+            // console.log("count", questionHooks.count);
+            questionHooks.status = false
         }
-        setQuestionNo(() => questionNo + 1)
+        setQuestionHooks((s) => ({ ...s, questionNo: questionHooks.questionNo + 1 }))
     }
 
     function handleQuiz() {
-        console.log("starting");
-        setQuestionNo(1)
-        setCount([0, 0])
+        // console.log("starting");
+        setQuestionHooks((s) => ({ ...s, questionNo: questionHooks.questionNo = 1, count: questionHooks.count = [0, 0], status: questionHooks.status = false }))
+        // console.log("count", questionHooks.count);
+        // console.log("count", questionHooks.questionNo);
     }
 
     return (
         <>
-            {questionNo === 11 ? <Result count={count} startAgain={handleQuiz} />
+            {questionHooks.questionNo === 11 ? <Result count={questionHooks.count} startAgain={handleQuiz} />
                 :
                 (
                     <div id="container">
                         <div className="item" id="item1">
-                            <label >{questionContent[questionNo][0]}</label><br />
+                            <label >{questionContent[questionHooks.questionNo][0]}</label><br />
                             <select name="" id="" className="options">
-                                <option value={questionContent[questionNo][1]}>{questionContent[questionNo][1]}</option>
-                                <option value={questionContent[questionNo][2]}>{questionContent[questionNo][2]}</option>
+                                <option value={questionContent[questionHooks.questionNo][1]}>{questionContent[questionHooks.questionNo][1]}</option>
+                                <option value={questionContent[questionHooks.questionNo][2]}>{questionContent[questionHooks.questionNo][2]}</option>
                             </select><br />
                             <button onClick={handleQuestionNo} className="submitbutton">Submit</button><br /><br />
                         </div>
-                        <Status />
+                        <Status status={questionHooks.status} />
                     </div>
                 )}
         </>
